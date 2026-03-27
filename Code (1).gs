@@ -1,40 +1,34 @@
 // ═══════════════════════════════════════════════════════════════
-// AI Operating System — Lead Capture & Email Delivery
-// Google Apps Script  |  https://script.google.com/macros/s/AKfycbw8xXcCnW8jWwIvyRhRxy862pykZM5NFCx81KN3OE19PcRmGrCSyLFA6y0lECcPenDP/exec
+// AI Operating System — Lead Capture & Email Delivery (FINAL)
 // ═══════════════════════════════════════════════════════════════
 
-// ── 1. YOUR GOOGLE SHEET ID ──────────────────────────────────────
+// ── CONFIG ─────────────────────────────────────────────────────
 const SHEET_ID = '11e6rtm2-u8UG1ipaZm_Ms5_IG2lFxKxUQrUQ6LHG6Us';
-
-// ── 2. YOUR PDF FILE ID FROM GOOGLE DRIVE ────────────────────────
 const PDF_DRIVE_ID = '1XAT--XPBFX_qVS2mU3L9oQfipQLSzres';
 
-// ── 3. SENDER NAME ───────────────────────────────────────────────
 const SENDER_NAME = 'Simply Staffed AI';
-
-// ── 4. UNSUBSCRIBE EMAIL ─────────────────────────────────────────
 const UNSUBSCRIBE_EMAIL = 'unsubscribe@simplystaffed.com';
-
-// ── 5. YOUR WEBSITE ──────────────────────────────────────────────
 const WEBSITE_URL = 'https://simplystaffed.com';
-
-// ═══════════════════════════════════════════════════════════════
-// DO NOT EDIT BELOW THIS LINE
-// ═══════════════════════════════════════════════════════════════
 
 const EMAIL_SUBJECT = 'Your Free AI Operating System Playbook';
 
+// ═══════════════════════════════════════════════════════════════
+// ── MAIN FUNCTION ──────────────────────────────────────────────
 function doPost(e) {
   try {
-    // ── Read form-encoded parameters ─────────────────────────
+    // ── GET DATA ──
     const name  = e.parameter.name  || '';
     const email = e.parameter.email || '';
     const phone = e.parameter.phone || '';
     const role  = e.parameter.role  || '';
 
-    // ── Save to Google Sheet ──────────────────────────────────
-    const ss    = SpreadsheetApp.openById(SHEET_ID);
-    const sheet = ss.getSheets()[0];
+    // ── VALIDATION ──
+    if (!email) {
+      return ContentService.createTextOutput('error: missing email');
+    }
+
+    // ── SAVE TO GOOGLE SHEETS ──
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
 
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(['Timestamp', 'First Name', 'Email', 'Mobile', 'Role']);
@@ -46,101 +40,84 @@ function doPost(e) {
     }
 
     sheet.appendRow([
-      new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }),
+      new Date(),
       name,
       email,
       phone,
       role
     ]);
 
-    // ── Fetch PDF and send email ──────────────────────────────
-    const pdfFile   = DriveApp.getFileById(PDF_DRIVE_ID);
-    const pdfBlob   = pdfFile.getBlob().setName('The_AI_Operating_System_Playbook.pdf');
-    const firstName = name.split(' ')[0];
+    // ── GET PDF ──
+    const file = DriveApp.getFileById(PDF_DRIVE_ID);
+    const pdfBlob = file.getBlob().setName('AI_Operating_System_Playbook.pdf');
 
+    const firstName = name ? name.split(' ')[0] : 'there';
+
+    // ── EMAIL CONTENT ──
     const htmlBody = `
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/></head>
-<body style="margin:0;padding:0;background:#f7f3fd;font-family:'Helvetica Neue',Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f3fd;padding:32px 16px;">
-<tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+    <div style="font-family:Arial,sans-serif;background:#f7f3fd;padding:30px;">
+      <div style="max-width:560px;margin:auto;background:#ffffff;border-radius:10px;overflow:hidden;">
+        
+        <div style="background:#4a2a50;color:#fff;padding:25px;text-align:center;">
+          <h2 style="margin:0;">The AI Operating System</h2>
+          <p style="margin:5px 0 0;font-size:14px;">for Property Professionals</p>
+        </div>
 
-  <tr>
-    <td style="background:#4a2a50;border-radius:12px 12px 0 0;padding:32px 36px 24px;text-align:center;">
-      <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#e8c153;">Simply Staffed</p>
-      <h1 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#ffffff;">The AI Operating System</h1>
-      <p style="margin:0;font-size:13px;font-style:italic;color:#e4deec;">for Property Professionals</p>
-    </td>
-  </tr>
+        <div style="padding:25px;">
+          <p style="font-size:16px;"><strong>Hey ${firstName},</strong></p>
 
-  <tr>
-    <td style="background:#fbf6db;border-left:1px solid #ddd4e8;border-right:1px solid #ddd4e8;padding:32px 36px 28px;">
-      <p style="margin:0 0 16px;font-size:16px;font-weight:600;color:#38203e;">Hey ${firstName},</p>
-      <p style="margin:0 0 14px;font-size:14px;line-height:1.75;color:#5a3860;">
-        Your free playbook is attached to this email. Open it, save it, and keep it close — it is your step-by-step guide to implementing AI across your entire property business.
-      </p>
-      <p style="margin:0 0 24px;font-size:14px;line-height:1.75;color:#5a3860;">
-        The fastest way to get value from it: <strong>start with Section 2 — the 3 Things to Do This Week.</strong> You will save hours before Friday.
-      </p>
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #ddd4e8;border-radius:10px;margin-bottom:24px;">
-        <tr><td style="padding:20px 22px;">
-          <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8a6892;">What is inside your playbook</p>
-          <table cellpadding="0" cellspacing="0">
-            <tr><td style="padding:4px 0;font-size:13px;color:#38203e;">&#10022;&nbsp;&nbsp;The 4-Step Deployment Plan</td></tr>
-            <tr><td style="padding:4px 0;font-size:13px;color:#38203e;">&#10022;&nbsp;&nbsp;Best Tools &amp; Workflow Examples</td></tr>
-            <tr><td style="padding:4px 0;font-size:13px;color:#38203e;">&#10022;&nbsp;&nbsp;Your Property Business Intelligence Brief (PBIB)</td></tr>
-            <tr><td style="padding:4px 0;font-size:13px;color:#38203e;">&#10022;&nbsp;&nbsp;The RCCF Prompt Framework</td></tr>
-            <tr><td style="padding:4px 0;font-size:13px;color:#38203e;">&#10022;&nbsp;&nbsp;Your 30-Day Quick-Start Checklist</td></tr>
-          </table>
-        </td></tr>
-      </table>
-      <p style="margin:0;font-size:13px;color:#8a6892;line-height:1.6;">Questions? Simply reply to this email and we will get back to you.</p>
-    </td>
-  </tr>
+          <p>Your free playbook is attached.</p>
 
-  <tr>
-    <td style="background:#4a2a50;border-radius:0 0 12px 12px;padding:18px 36px;text-align:center;">
-      <p style="margin:0 0 6px;font-size:12px;color:#e4deec;">
-        &copy; Simply Staffed AI &nbsp;&middot;&nbsp;
-        <a href="${WEBSITE_URL}" style="color:#e8c153;text-decoration:none;">simplystaffed.com</a>
-      </p>
-      <p style="margin:0;font-size:11px;color:#a08aac;">
-        You received this because you requested the free playbook.&nbsp;
-        <a href="mailto:${UNSUBSCRIBE_EMAIL}?subject=Unsubscribe&body=Please remove me from your list. My email: ${email}" style="color:#e8c153;text-decoration:underline;">Unsubscribe</a>
-      </p>
-    </td>
-  </tr>
+          <p>
+            Start with <strong>Section 2 — the 3 Things to Do This Week</strong>
+            to get quick wins immediately.
+          </p>
 
-</table>
-</td></tr>
-</table>
-</body>
-</html>`;
+          <p>If you have questions, just reply to this email.</p>
+        </div>
 
-    const plainText = `Hey ${firstName},\n\nYour AI Operating System playbook is attached.\n\nStart with Section 2 — the 3 Things to Do This Week.\n\nQuestions? Reply to this email.\n\n— Simply Staffed AI\n${WEBSITE_URL}\n\nTo unsubscribe: ${UNSUBSCRIBE_EMAIL}`;
+        <div style="background:#f4f0f8;padding:15px;text-align:center;font-size:12px;">
+          <p style="margin:0;">
+            <a href="${WEBSITE_URL}" style="color:#4a2a50;">simplystaffed.com</a>
+          </p>
+          <p style="margin:5px 0 0;">
+            <a href="mailto:${UNSUBSCRIBE_EMAIL}?subject=Unsubscribe&body=Please remove me (${email})"
+               style="color:#888;">Unsubscribe</a>
+          </p>
+        </div>
 
+      </div>
+    </div>
+    `;
+
+    const plainText = `
+Hey ${firstName},
+
+Your AI Operating System playbook is attached.
+
+Start with Section 2 to get quick wins.
+
+— Simply Staffed AI
+${WEBSITE_URL}
+`;
+
+    // ── SEND EMAIL ──
     GmailApp.sendEmail(email, EMAIL_SUBJECT, plainText, {
-      name:        SENDER_NAME,
-      htmlBody:    htmlBody,
+      name: SENDER_NAME,
+      htmlBody: htmlBody,
       attachments: [pdfBlob]
     });
 
-    return ContentService
-      .createTextOutput('success')
-      .setMimeType(ContentService.MimeType.TEXT);
+    return ContentService.createTextOutput('success');
 
   } catch (err) {
-    Logger.log('ERROR: ' + err.toString());
-    return ContentService
-      .createTextOutput('error: ' + err.toString())
-      .setMimeType(ContentService.MimeType.TEXT);
+    Logger.log(err);
+    return ContentService.createTextOutput('error: ' + err.message);
   }
 }
 
-function doGet(e) {
-  return ContentService
-    .createTextOutput('OK')
-    .setMimeType(ContentService.MimeType.TEXT);
+// ═══════════════════════════════════════════════════════════════
+// ── TEST ENDPOINT ──────────────────────────────────────────────
+function doGet() {
+  return ContentService.createTextOutput('OK');
 }
