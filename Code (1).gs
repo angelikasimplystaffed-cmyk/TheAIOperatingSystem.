@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 // AI Operating System — Lead Capture & Email Delivery
-// Google Apps Script  |  https://script.google.com/macros/s/AKfycbyuaz-oFzc292-cz7b6lrbJe0IsbyQCZdrDKYzttpfzPHiPT2k_vdZUslcJFgekqNTS/exec
+// Google Apps Script  |  https://script.google.com/macros/s/AKfycbw8xXcCnW8jWwIvyRhRxy862pykZM5NFCx81KN3OE19PcRmGrCSyLFA6y0lECcPenDP/exec
 // ═══════════════════════════════════════════════════════════════
 
 // ── 1. YOUR GOOGLE SHEET ID ──────────────────────────────────────
